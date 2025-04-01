@@ -253,7 +253,7 @@ Important: If you run the command and get no result, make sure that you have the
 Local Enumeration (Local Access to an SQL Server), so the command below are ran on an SQL server:
 - using SQLPS module:
 import-module -name SQLPS
-get-childitem SQLServer:\SQL\get-childitem <machinename>
+get-childitem SQLServer:\SQL\<machinename>
 
 Example:
 (there's something wrong with the command from the video)
