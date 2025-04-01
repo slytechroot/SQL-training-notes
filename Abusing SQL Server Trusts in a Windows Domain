@@ -258,12 +258,12 @@ get-childitem SQLServer:\SQL\<machinename>
 Example:
 (there's something wrong with the command from the video)
 
-PS SQLSERVER:\> get-childitem SQLserver:\\SQL\get-childitem win2016srv
+PS SQLSERVER:\> get-childitem SQLserver:\\SQL\win2016srv
 WARNING: Could not obtain SQL Server Service information. An attempt to connect to WMI on 'get-childitem' failed with
 the following error: The RPC server is unavailable. (Exception from HRESULT: 0x800706BA)
 get-childitem : Cannot call method. The provider does not support the use of filters.
 At line:1 char:1
-+ get-childitem SQLserver:\\SQL\get-childitem win2016srv
++ get-childitem SQLserver:\\SQL\win2016srv
 + ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     + CategoryInfo          : NotImplemented: (:) [Get-ChildItem], PSNotSupportedException
     + FullyQualifiedErrorId : NotSupported,Microsoft.PowerShell.Commands.GetChildItemCommand
