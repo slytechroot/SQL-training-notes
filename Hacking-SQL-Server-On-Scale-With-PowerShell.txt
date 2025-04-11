@@ -1,0 +1,77 @@
+Hacking SQL Server on Scale with PowerShell
+Slides:
+http://slideshare.net/nullbind
+http://slideshare.net/netspi
+Blogs:
+https://blog.netspi.com/author/scott
+sutherland/
+Code:
+https://github.com/netspi/PowerUpSQL
+https://github.com/nullbind
+
+● PowerUpSQL Overview
+● SQL Server Discovery
+● Privilege Escalation Scenarios
+o Domain user to SQL Server login
+o SQL Server Login to Sysadmin
+o Sysadmin to Windows Admin
+o Windows Admin to Sysadmin
+o Domain Escalation
+● Post Exploitation Activities
+● General Recommendations
+
+Why
+SQL Server?
+●
+Used in most enterprise environments
+●
+Used by a lot of development teams
+●
+Used by a lot of vendor solutions
+●
+Supports Windows authentication both
+locally and on the domain
+●
+Lots of integration with other Windows
+services and tools
+
+Why
+PowerShell?
+●
+Native to Windows
+●
+Run commands in memory
+●
+Run managed .net code
+●
+Run unmanaged code
+●
+Avoid detection by Anti virus
+●
+Already flagged as "trusted" by most
+application whitelist solutions
+●
+A medium used to write many open source
+Pentest toolkits
+
+https://github.com/netspi/PowerUpSQL
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
