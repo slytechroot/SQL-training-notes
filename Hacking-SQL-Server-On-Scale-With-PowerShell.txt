@@ -40,53 +40,38 @@ Why PowerShell?
 https://github.com/netspi/PowerUpSQL
 PowerUpSQL
 Overview: Primary Goals
-●
-Instance Discovery
-●
-Auditing
-●
-Exploitation
-●
-Scalable
-●
-Flexible
-●
-Portable
+● Instance Discovery
+● Auditing
+● Exploitation
+● Scalable
+● Flexible
+● Portable
 
 Functions
 Primary Attack Functions
-●
-Invoke SQLDumpInfo
-●
-Invoke SQLAudit
-●
-Invoke SQLEscalatePriv
+● Invoke SQLDumpInfo
+● Invoke SQLAudit
+● Invoke SQLEscalatePriv
+
 Popular Auxiliary Functions
-●
-Get SQLInstanceDomain
-●
-Invoke SQLOsCmd
-●
-Invoke SQLOsCLR
-●
-Invoke SQLImperstonateService
-●
-Invoke SQLAuditDefaultLoginPw
-●
-Invoke SQLAuditWeakLoginPw
+● Get SQLInstanceDomain
+● Invoke SQLOsCmd
+● Invoke SQLOsCLR
+● Invoke SQLImperstonateService
+● Invoke SQLAuditDefaultLoginPw
+● Invoke SQLAuditWeakLoginPw
 
 How do I install it?
 Github
 Import-Module PowerUpSQL.psd1
-IEX(New
-Object
-System.Net.WebClient DownloadString ("https://raw.githubusercontent.com/ PowerUpSQL /master/P
-owerUpSQL.ps1")
+IEX(New ObjectSystem.Net.WebClient DownloadString ("https://raw.githubusercontent.com/ PowerUpSQL /master/PowerUpSQL.ps1")
+
 Execution policy work arounds
 https://blog.netspi.com/15 ways to bypass the powershell execution policy/
 PowerShell Gallery
-Install
-Module Name PowerUpSQL
+Install Module Name PowerUpSQL
+
+
 
 
 
