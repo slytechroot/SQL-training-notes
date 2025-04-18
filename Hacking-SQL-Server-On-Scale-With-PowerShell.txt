@@ -64,12 +64,18 @@ Popular Auxiliary Functions
 How do I install it?
 Github
 Import-Module PowerUpSQL.psd1
-IEX(New ObjectSystem.Net.WebClient DownloadString ("https://raw.githubusercontent.com/ PowerUpSQL /master/PowerUpSQL.ps1")
+IEX(New-ObjectSystem.Net.WebClient).DownloadString("https://raw.githubusercontent.com/NetSpi/PowerUpSQL/master/PowerUpSQL.ps1")
 
-Execution policy work arounds
-https://blog.netspi.com/15 ways to bypass the powershell execution policy/
+Execution policy work arounds:
+https://blog.netspi.com/15-ways-to-bypass-the-powershell-execution-policy/
+
 PowerShell Gallery
-Install Module Name PowerUpSQL
+Install-Module -Name PowerUpSQL
+
+List Functions
+Get-Command -Module PowerUpSQL
+Get-Help Get-SQLServerInfo -Full
+
 
 
 
